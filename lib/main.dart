@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebasemyproject/firebase_options.dart';
+import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
 
@@ -29,7 +30,7 @@ class MyProject extends StatefulWidget {
 
 class _MyProjectState extends State<MyProject> {
   final String email = "mehmetgskmp31@gmail.com";
-  final String password = "pass123456";
+  final String password = "yenisifre";
   late FirebaseAuth auth;
   @override
   void initState() {
@@ -115,6 +116,66 @@ class _MyProjectState extends State<MyProject> {
                 child: Text("Çıkış Yap"),
               ),
             ),
+
+            SizedBox(height: 15),
+
+            SizedBox(
+              height: 55,
+              width: 250,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadiusGeometry.circular(10),
+                  ),
+                ),
+                onPressed: () {
+                  deleteUser();
+                },
+                child: Text("Kullanıcı Sil"),
+              ),
+            ),
+
+            SizedBox(height: 15),
+
+            SizedBox(
+              height: 55,
+              width: 250,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.brown,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadiusGeometry.circular(10),
+                  ),
+                ),
+                onPressed: () {
+                  changePass();
+                },
+                child: Text("Parola Değiştir"),
+              ),
+            ),
+
+            SizedBox(height: 15),
+
+            SizedBox(
+              height: 55,
+              width: 250,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.purple,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadiusGeometry.circular(10),
+                  ),
+                ),
+                onPressed: () {
+                  changeEmail();
+                },
+                child: Text("Email Değiştir"),
+              ),
+            ),
           ],
         ),
       ),
@@ -127,6 +188,10 @@ class _MyProjectState extends State<MyProject> {
         email: email,
         password: password,
       );
+      var _myUser = _userCredential.user!;
+      if (!_myUser.emailVerified) {
+        _myUser.sendEmailVerification();
+      }
       debugPrint(_userCredential.toString());
     } catch (e) {
       debugPrint(e.toString());
@@ -145,5 +210,61 @@ class _MyProjectState extends State<MyProject> {
     }
   }
 
-  void signOutUser() async {}
+  void signOutUser() async {
+    try {
+      await auth.signOut();
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  void deleteUser() async {
+    if (auth.currentUser != null) {
+      await auth.currentUser!.delete();
+    } else {
+      debugPrint("Önce oturum açmalısın");
+    }
+  }
+
+  void changePass() async {
+    try {
+      await auth.currentUser!.updatePassword("yenisifre");
+      await auth.signOut();
+    } on FirebaseAuthException catch (e) {
+      if (e.code == "requires-recent-login") {
+        debugPrint("Tekrar Oturum Açmalı");
+        var credential = EmailAuthProvider.credential(
+          email: email,
+          password: password,
+        );
+        await auth.currentUser!.updatePassword("yenisifre");
+        await auth.signOut();
+        debugPrint("Şifre Güncellendi");
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  void changeEmail() async {
+    try {
+      await auth.currentUser!.verifyBeforeUpdateEmail("legniga2001@gmail.com");
+      await auth.signOut();
+    } on FirebaseAuthException catch (e) {
+      if (e.code == "requires-recent-login") {
+        var credential = EmailAuthProvider.credential(
+          email: email,
+          password: password,
+        );
+        auth.currentUser!.reauthenticateWithCredential(credential);
+
+        await auth.currentUser!.verifyBeforeUpdateEmail(
+          "legniga2001@gmail.com",
+        );
+        await auth.signOut();
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
 }
