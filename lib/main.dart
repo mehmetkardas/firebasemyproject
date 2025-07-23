@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebasemyproject/firebase_firestore_kullanimi.dart';
 import 'package:firebasemyproject/firebase_options.dart';
 import 'package:flutter/foundation.dart';
 
@@ -17,7 +18,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(debugShowCheckedModeBanner: false, home: MyProject());
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: FirebaseFirestoreKullanimi(),
+    );
   }
 }
 
