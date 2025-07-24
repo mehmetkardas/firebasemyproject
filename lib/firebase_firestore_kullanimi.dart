@@ -91,9 +91,27 @@ class _FirebaseFirestoreKullanimiState
   }
 
   void veriEkleSet() async {
-    await firestore.doc("users/jmjsqADcA7gxjIbs6SSs").set({
+    /* await firestore.doc("users/jmjsqADcA7gxjIbs6SSs").set({
       "okul": "Marmara Üniversitesi",
-    }, SetOptions(merge: true));
+    }, SetOptions(merge: true));*/
+
+    var yeniDocId = firestore.collection("users").doc().id;
+    Map<String, dynamic> _ekleneceklerUser = {};
+    _ekleneceklerUser["userID"] = yeniDocId;
+    _ekleneceklerUser["name"] = "İcardi";
+    _ekleneceklerUser["age"] = 31;
+    _ekleneceklerUser["school"] = "California Universty";
+    _ekleneceklerUser["adress"] = {
+      "city": "Argentina",
+      "district": "Boca Juniors",
+      "street": "Osimhen Street",
+    };
+    _ekleneceklerUser["colors"] = FieldValue.arrayUnion(["Sarı", "Kırmızı"]);
+    _ekleneceklerUser["createdAdd"] = FieldValue.serverTimestamp();
+
+    await firestore
+        .doc("users/$yeniDocId")
+        .set(_ekleneceklerUser, SetOptions(merge: true));
   }
 }
 
